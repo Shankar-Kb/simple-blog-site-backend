@@ -26,17 +26,15 @@ const checkUser = (req, res, next) => {
   if (token) {
     jwt.verify(token, process.env.JWT_SECRET_KEY, async (err, decodedToken) => {
       if (err) {
-        res.locals.user = null;
-        next();
+        res.status(401).json({message:"The token is invalid"})
       } else {
         let user = await User.findById(decodedToken.id);
-        res.locals.user = user;
+        res.json({ userEmail: user.email, userId: user._id, userName: user.name, message:"You are relogged in"});
         next();
       }
     });
   } else {
-    res.locals.user = null;
-    next();
+    res.status(404).json({error:"The token does not exist"});
   }
 };
 

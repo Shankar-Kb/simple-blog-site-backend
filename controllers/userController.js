@@ -48,7 +48,7 @@ module.exports.signup_post = async (req, res) => {
   try {
     const user = await User.create({ name, email, password });
     const token = createToken(user._id);
-    res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+    res.cookie('jwt', token, { httpOnly: true, sameSite: 'Lax', maxAge: maxAge * 1000 });
     res.status(201).json({ userEmail: user.email });
   }
   catch(err) {
@@ -64,7 +64,7 @@ module.exports.login_post = async (req, res) => {
   try {
     const user = await User.login(email, password);
     const token = createToken(user._id);
-    res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+    res.cookie('jwt', token, { httpOnly: true, sameSite: 'Lax', maxAge: maxAge * 1000 });
     res.status(200).json({ userEmail: user.email, userId: user._id, userName: user.name});
   } 
   catch (err) {
@@ -75,6 +75,7 @@ module.exports.login_post = async (req, res) => {
 }
 
 module.exports.logout_get = (req, res) => {
-  res.cookie('jwt', '', { maxAge: 1 });
-  res.status(200).json({ message: "You are logged out!"});
+  //res.cookie('jwt', '', { maxAge: 1 });
+  //res.status(200).json({ message: "You are logged out!"});
+  res.status(202).clearCookie('jwt').send("You are logged out!");
 }
