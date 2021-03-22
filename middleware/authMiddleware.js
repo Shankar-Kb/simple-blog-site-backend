@@ -20,6 +20,17 @@ const requireAuth = (req, res, next) => {
   }
 };
 
+const requireRole = (role) => {
+  return (req, res, next) => {
+    if (req.user.role !== role) {
+      res.status(401)
+      return res.send('Not allowed')
+    }
+
+    next()
+  }
+}
+
 // check current user
 const checkUser = (req, res, next) => {
   const token = req.cookies.jwt;
@@ -39,4 +50,4 @@ const checkUser = (req, res, next) => {
 };
 
 
-module.exports = { requireAuth, checkUser };
+module.exports = { requireAuth, requireRole, checkUser };
