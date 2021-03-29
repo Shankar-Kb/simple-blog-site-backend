@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: [4, 'Minimum name length is 4 characters']
+  },
+  role: {
+    type: String,
+    require: true
   }
 });
 

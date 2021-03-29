@@ -1,4 +1,5 @@
 const Blog = require('../models/blog');
+const Comment = require('../models/comment');
 
 const blogs_all = (req, res) => {
   Blog.find().sort({ createdAt: -1 })
@@ -60,7 +61,12 @@ const blog_create_post = (req, res) => {
 
 const blog_edit = (req, res) => {
   const id = req.params.id;
-  Blog.findByIdAndDelete(id)
+  const body = {
+    title: req.body.title,
+    snippet: req.body.snippet,
+    body: req.body.body
+  }
+  Blog.findOneAndUpdate( {_id: id}, body)
     .then(result => {
       res.json({ message: `Blog is updated. ID - ${result}` });
     })

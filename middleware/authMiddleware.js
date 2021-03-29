@@ -22,7 +22,7 @@ const requireAuth = (req, res, next) => {
 
 const requireRole = (role) => {
   return (req, res, next) => {
-    if (req.user.role !== role) {
+    if (req.body.role !== role) {
       res.status(401)
       return res.send('Not allowed')
     }
@@ -40,7 +40,7 @@ const checkUser = (req, res, next) => {
         res.status(401).json({message:"The token is invalid"})
       } else {
         let user = await User.findById(decodedToken.id);
-        res.json({ userEmail: user.email, userId: user._id, userName: user.name, message:"You are relogged in"});
+        res.json({ userEmail: user.email, userId: user._id, userName: user.name, userRole: user.role, message:"You are relogged in"});
         next();
       }
     });

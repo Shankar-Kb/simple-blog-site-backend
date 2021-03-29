@@ -20,7 +20,7 @@ app.set('view engine', 'ejs');
 
 // database connection
 const dbURL = process.env.DB_URL;
-mongoose.connect(dbURL, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true })
+mongoose.connect(dbURL, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true, useFindAndModify: false })
   .then((result) => app.listen(process.env.PORT || 3001))
   .catch((err) => console.log(err));
 

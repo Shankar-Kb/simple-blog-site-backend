@@ -43,10 +43,10 @@ const createToken = (id) => {
 
 
 module.exports.signup_post = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   try {
-    const user = await User.create({ name, email, password });
+    const user = await User.create({ name, email, password, role });
     const token = createToken(user._id);
     res.cookie('jwt', token, { httpOnly: true, sameSite: 'Lax', maxAge: maxAge * 1000 });
     res.status(201).json({ userEmail: user.email });
@@ -65,7 +65,7 @@ module.exports.login_post = async (req, res) => {
     const user = await User.login(email, password);
     const token = createToken(user._id);
     res.cookie('jwt', token, { httpOnly: true, sameSite: 'Lax', maxAge: maxAge * 1000 });
-    res.status(200).json({ userEmail: user.email, userId: user._id, userName: user.name});
+    res.status(200).json({ userEmail: user.email, userId: user._id, userName: user.name, userRole: user.role});
   } 
   catch (err) {
     const errors = handleErrors(err);
@@ -78,4 +78,15 @@ module.exports.logout_get = (req, res) => {
   //res.cookie('jwt', '', { maxAge: 1 });
   //res.status(200).json({ message: "You are logged out!"});
   res.status(202).clearCookie('jwt').send("You are logged out!");
+}
+
+
+module.exports.users_all = (req, res) => {
+  User.find({ role: 'basic' }, { email: 1, name: 1, _id: 1}).sort({ email: 1 })
+    .then(result => {
+      res.json(result);
+    })
+    .catch(err => {
+      console.log(err);
+    });
 }
