@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 // handle errors
 const handleErrors = (err) => {
@@ -80,11 +81,84 @@ module.exports.logout_get = (req, res) => {
   res.status(202).clearCookie('jwt').send("You are logged out!");
 }
 
-
 module.exports.users_all = (req, res) => {
   User.find({ role: 'basic' }, { email: 1, name: 1, _id: 1}).sort({ email: 1 })
     .then(result => {
       res.json(result);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+module.exports.user_edit = (req, res) => {
+  const id = req.params.id;
+  const body = {
+    name: req.body.name,
+    email: req.body.email
+  }
+  User.findOneAndUpdate( {_id: id}, body)
+    .then(result => {
+      res.json({ message: `User is updated. ID - ${result}` });
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+module.exports.user_delete = (req, res) => {
+  const id = req.params.id;
+  User.findByIdAndDelete(id)
+    .then(result => {
+      res.json({ message: `User is deleted. ID - ${result}` });
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+      user: process.env.EMAIL,
+      pass: process.env.PASSWORD,
+  }
+})
+
+const mailData = {
+  from: process.env.EMAIL,
+  subject: "Reset your password"
+}
+
+const mailMessage = (url) => {
+  return (
+      `<p>Please click the clink below to reset and change your password.<br />
+        If the request was not made by you, kindle delete this mail.<br />
+          <a href='${url}' target='_blank'>${url}</a><br />
+       </p>`
+  );
+}
+
+module.exports.check_email = (req, res) => {
+
+  User.findOne({ email: req.body.email }, { email: 1 })
+    .then(result => {
+      
+      if(result){
+        
+        const token = createToken(result._id);
+        const clientFinalUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
+        mailData.to = result.email;
+        mailData.html = mailMessage(clientFinalUrl);
+        transporter.sendMail(mailData)
+            .then(result => {
+              res.json({message: "A password reset mail has been sent to your registered email address"});
+            })
+            .catch(error => console.log(error));
+      }
+      else{
+        res.json({error: "The email does not exist"});
+      }
     })
     .catch(err => {
       console.log(err);

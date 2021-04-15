@@ -1,5 +1,4 @@
 const Blog = require('../models/blog');
-const Comment = require('../models/comment');
 
 const blogs_all = (req, res) => {
   Blog.find().sort({ createdAt: -1 })
@@ -75,16 +74,24 @@ const blog_edit = (req, res) => {
     });
 }
 
+const deleteBlogComments = (id) => {
+  Comment.deleteMany({ _id: id })
+  .catch(err => console.log(err) );
+}
+
 const blog_delete = (req, res) => {
   const id = req.params.id;
   Blog.findByIdAndDelete(id)
     .then(result => {
+      deleteBlogComments(id);
       res.json({ message: `Blog is deleted. ID - ${result}` });
     })
     .catch(err => {
       console.log(err);
     });
 }
+
+
 
 module.exports = {
   blogs_all,

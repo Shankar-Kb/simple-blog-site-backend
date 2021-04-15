@@ -22,6 +22,20 @@ const comment_create_post = (req, res) => {
     });
 }
 
+const comment_edit = (req, res) => {
+  const id = req.params.id;
+  const body = {
+    body: req.body.body
+  }
+  Comment.findOneAndUpdate( {_id: id}, body)
+    .then(result => {
+      res.json({ message: `Comment is updated. ID - ${result}` });
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
 const comment_delete = (req, res) => {
   const id = req.params.id;
   Comment.findByIdAndDelete(id)
@@ -35,6 +49,7 @@ const comment_delete = (req, res) => {
 
 module.exports = {
   comments_blog_get,
-  comment_create_post, 
+  comment_create_post,
+  comment_edit, 
   comment_delete
 }
