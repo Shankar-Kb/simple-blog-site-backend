@@ -12,5 +12,6 @@ router.post('/show-users', requireAuth, requireRole("admin"), userController.use
 router.put('/edit-user/:id', requireAuth, requireRole("admin"), userController.user_edit)
 router.delete('/delete-user/:id', requireAuth, requireRole("admin"), userController.user_delete)
 router.post('/check-email', userController.check_email)
+router.post('/reset-password/:id', userController.reset_password)
 
 module.exports = router;

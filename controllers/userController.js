@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const bcrypt = require('bcrypt');
 
 // handle errors
 const handleErrors = (err) => {
@@ -117,37 +118,40 @@ module.exports.user_delete = (req, res) => {
     });
 }
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
-  }
-})
-
-const mailData = {
-  from: process.env.EMAIL,
-  subject: "Reset your password"
-}
-
-const mailMessage = (url) => {
-  return (
-      `<p>Please click the clink below to reset and change your password.<br />
-        If the request was not made by you, kindle delete this mail.<br />
-          <a href='${url}' target='_blank'>${url}</a><br />
-       </p>`
-  );
-}
-
 module.exports.check_email = (req, res) => {
-
+  
   User.findOne({ email: req.body.email }, { email: 1 })
     .then(result => {
       
       if(result){
+
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+                  type: 'OAuth2',
+                  user: process.env.EMAIL,
+                  clientId: process.env.CLIENT_ID,
+                  clientSecret: process.env.CLIENT_SECRET,
+                  refreshToken: process.env.REFRESH_TOKEN
+                }
+        })
         
+        const mailData = {
+          from: process.env.EMAIL,
+          subject: "Reset your password"
+        }
+        
+        const mailMessage = (url) => {
+          return (
+              `<p>Click the link below to reset and change your password.<br />
+                If the request was not made by you, kindly delete this mail.<br />
+                  <a href='${url}' target='_blank'>${url}</a><br />
+               </p>`
+          );
+        }
+
         const token = createToken(result._id);
-        const clientFinalUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
+        const clientFinalUrl = `${process.env.CLIENT_URL}/reset-password/token?jwt=${token}`;
         mailData.to = result.email;
         mailData.html = mailMessage(clientFinalUrl);
         transporter.sendMail(mailData)
@@ -163,4 +167,32 @@ module.exports.check_email = (req, res) => {
     .catch(err => {
       console.log(err);
     });
+}
+
+module.exports.reset_password = (req, res) => {
+
+  const token = req.params.id;
+
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET_KEY, async (err, decodedToken) => {
+
+      try {
+        if (err) {
+          res.status(401).json({ error: "The token is invalid" });
+        } else {
+          const salt = await bcrypt.genSalt();
+          const encryptedPassword = await bcrypt.hash(req.body.password, salt);
+          await User.findOneAndUpdate({ _id: decodedToken.id }, { password: encryptedPassword });
+          res.json({ message: `Your password is changed successfully.` });
+        }
+      }
+      catch (error) {
+        console.log(error);
+      }
+
+    });
+  }
+  else {
+    res.status(404).json({ error: "The token does not exist" });
+  }
 }
