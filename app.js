@@ -12,7 +12,8 @@ const app = express();
 // middleware
 //app.use(express.static('public'));
 app.use(express.json());
-app.use(cors({credentials: true, origin:"http://localhost:3000"}));
+//app.use(cors({credentials: true, origin:"http://localhost:3000"}));
+app.use(cors());
 app.use(cookieParser());
 
 // view engine
@@ -23,7 +24,6 @@ const dbURL = process.env.DB_URL;
 mongoose.connect(dbURL, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true, useFindAndModify: false })
   .then((result) => app.listen(process.env.PORT || 3001))
   .catch((err) => console.log(err));
-
 
 // routes
 app.use(userRoutes);
