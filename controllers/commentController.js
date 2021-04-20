@@ -1,4 +1,4 @@
-const Comment = require('../models/Comment');
+const Comment = require('../models/Comment.js');
 
 const comments_blog_get = (req, res) => {
   const id = req.params.id;
