@@ -13,7 +13,7 @@ const app = express();
 //app.use(express.static('public'));
 app.use(express.json());
 //app.use(cors({credentials: true, origin:"http://localhost:3000"}));
-app.use(cors({credentials: true}));
+app.use(cors({credentials: true, origin:"https://simple-blog-site-frontend.netlify.app"}));
 app.use(cookieParser());
 
 // view engine
