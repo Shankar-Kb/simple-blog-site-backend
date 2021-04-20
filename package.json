@@ -21,5 +21,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shankar-Kb/simple-blog-site-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Shankar-Kb/simple-blog-site-backend/issues"
+  },
+  "homepage": "https://github.com/Shankar-Kb/simple-blog-site-backend#readme"
 }
